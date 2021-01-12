@@ -43,6 +43,8 @@ class Enlace:
     def __init__(self, linha_serial):
         self.linha_serial = linha_serial
         self.linha_serial.registrar_recebedor(self.__raw_recv)
+        self.dados_residuais = b''
+
 
     def registrar_recebedor(self, callback):
         self.callback = callback
@@ -57,6 +59,18 @@ class Enlace:
         pass
 
     def __raw_recv(self, dados):
+        dados = self.dados_residuais + dados
+        self.dados_residuais = b''
+        if not dados.endswith(b'\xc0'):
+            dados = dados.split(b'\xc0')
+            dados = list(filter((b'').__ne__, dados))
+            self.dados_residuais += dados.pop(-1)
+        
+        else:
+            dados = dados.split(b'\xc0')
+            dados = list(filter((b'').__ne__, dados))
+        for mensagem in dados:
+            self.callback(mensagem)
         # TODO: Preencha aqui com o código para receber dados da linha serial.
         # Trate corretamente as sequências de escape. Quando ler um quadro
         # completo, repasse o datagrama contido nesse quadro para a camada

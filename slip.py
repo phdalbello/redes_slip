@@ -48,6 +48,9 @@ class Enlace:
         self.callback = callback
 
     def enviar(self, datagrama):
+        # Adicionando os bytes de escape para 0xC0 e 0xDB
+        datagrama = datagrama.replace(b'\xdb', b'\xdb\xdd')
+        datagrama = datagrama.replace(b'\xc0', b'\xdb\xdc')
         # Adicionando o byte 0xC0 no começo e no fim do datagrama e enviando 
         # para a linha serial
         self.linha_serial.enviar(b'\xc0' + datagrama + b'\xc0')

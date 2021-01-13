@@ -59,25 +59,24 @@ class Enlace:
         pass
 
     def __raw_recv(self, dados):
+        # Tratar mensagens recebidas incompletas ou de forma múltipla
         dados = self.dados_residuais + dados
         self.dados_residuais = b''
         if not dados.endswith(b'\xc0'):
             dados = dados.split(b'\xc0')
             dados = list(filter((b'').__ne__, dados))
             self.dados_residuais += dados.pop(-1)
-        
         else:
             dados = dados.split(b'\xc0')
             dados = list(filter((b'').__ne__, dados))
-        for mensagem in dados:
-            mensagem = mensagem.replace(b'\xdb\xdd', b'\xdb')
-            mensagem = mensagem.replace(b'\xdb\xdc', b'\xc0')
-            self.callback(mensagem)
-        # TODO: Preencha aqui com o código para receber dados da linha serial.
-        # Trate corretamente as sequências de escape. Quando ler um quadro
-        # completo, repasse o datagrama contido nesse quadro para a camada
-        # superior chamando self.callback. Cuidado pois o argumento dados pode
-        # vir quebrado de várias formas diferentes - por exemplo, podem vir
-        # apenas pedaços de um quadro, ou um pedaço de quadro seguido de um
-        # pedaço de outro, ou vários quadros de uma vez só.
+        for datagrama in dados:
+        # Tratar caracteres de escape
+            datagrama = datagrama.replace(b'\xdb\xdc', b'\xc0')
+            datagrama = datagrama.replace(b'\xdb\xdd', b'\xdb') 
+        # Tratar datagrama mal formado
+            try:
+                self.callback(datagrama)
+            except:
+                import traceback
+                traceback.print_exc()
         pass

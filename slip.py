@@ -70,6 +70,8 @@ class Enlace:
             dados = dados.split(b'\xc0')
             dados = list(filter((b'').__ne__, dados))
         for mensagem in dados:
+            mensagem = mensagem.replace(b'\xdb\xdd', b'\xdb')
+            mensagem = mensagem.replace(b'\xdb\xdc', b'\xc0')
             self.callback(mensagem)
         # TODO: Preencha aqui com o código para receber dados da linha serial.
         # Trate corretamente as sequências de escape. Quando ler um quadro
